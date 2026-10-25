@@ -14,7 +14,6 @@ import { MemoryViewer } from './components/MemoryViewer';
 import { ExecutionLog } from './components/ExecutionLog';
 
 export function App() {
-  // Underlying CPU Hardware Engine instance
   const cpuRef = useRef<CPUEngine>(new CPUEngine());
 
   // Editor and assembly state
@@ -22,23 +21,24 @@ export function App() {
   const [errors, setErrors] = useState<AssemblyError[]>([]);
   const [parsedInstructions, setParsedInstructions] = useState<ParsedInstruction[]>([]);
 
+  // Right-hand tab state: Memory vs Execution Log
+  const [rightTab, setRightTab] = useState<'memory' | 'log'>('memory');
+  const [showDiagram, setShowDiagram] = useState<boolean>(true);
+
   // Simulation execution settings
-  const [runSpeed, setRunSpeed] = useState<number>(300); // ms per step
+  const [runSpeed, setRunSpeed] = useState<number>(300);
   const timerRef = useRef<number | null>(null);
 
-  // CPU Snapshot state for React reactivity
+  // CPU Snapshot state
   const [cpuSnapshot, setCpuSnapshot] = useState(() => cpuRef.current.getSnapshot());
   const [logs, setLogs] = useState(() => cpuRef.current.getLogs());
 
-  // Refresh reactive snapshot from the real engine
   const refreshCPUState = useCallback(() => {
     setCpuSnapshot(cpuRef.current.getSnapshot());
     setLogs(cpuRef.current.getLogs());
   }, []);
 
-  // Assemble current source code
   const handleAssemble = useCallback((): boolean => {
-    // Stop any active continuous run
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -60,9 +60,7 @@ export function App() {
     }
   }, [code, refreshCPUState]);
 
-  // Execute one step
   const handleStep = useCallback(() => {
-    // If not assembled or status was halted/error, assemble first
     if (cpuSnapshot.status === 'ERROR' || parsedInstructions.length === 0) {
       const ok = handleAssemble();
       if (!ok) return;
@@ -77,11 +75,9 @@ export function App() {
     }
   }, [cpuSnapshot.status, parsedInstructions.length, handleAssemble, refreshCPUState]);
 
-  // Run continuous loop
   const handleRun = useCallback(() => {
-    if (timerRef.current !== null) return; // Prevent multiple loops
+    if (timerRef.current !== null) return;
 
-    // Assemble if needed
     if (parsedInstructions.length === 0 || cpuSnapshot.status === 'HALTED' || cpuSnapshot.status === 'ERROR') {
       const ok = handleAssemble();
       if (!ok) return;
@@ -103,7 +99,6 @@ export function App() {
     }, runSpeed);
   }, [parsedInstructions.length, cpuSnapshot.status, handleAssemble, refreshCPUState, runSpeed]);
 
-  // Pause
   const handlePause = useCallback(() => {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
@@ -115,7 +110,6 @@ export function App() {
     }
   }, [refreshCPUState]);
 
-  // Hardware Reset
   const handleReset = useCallback(() => {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
@@ -128,7 +122,6 @@ export function App() {
     refreshCPUState();
   }, [parsedInstructions, refreshCPUState]);
 
-  // Load Example Program
   const handleLoadExample = (example: ExampleProgram) => {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
@@ -142,13 +135,11 @@ export function App() {
     refreshCPUState();
   };
 
-  // Modify Memory byte manually
   const handleModifyByte = (address: number, val: number) => {
     cpuRef.current.writeMemory(address, val);
     refreshCPUState();
   };
 
-  // Clear Editor
   const handleClearEditor = () => {
     if (timerRef.current !== null) {
       clearInterval(timerRef.current);
@@ -161,13 +152,11 @@ export function App() {
     refreshCPUState();
   };
 
-  // Clear Logs
   const handleClearLogs = () => {
     cpuRef.current.reset();
     refreshCPUState();
   };
 
-  // Initial auto-assemble on launch
   useEffect(() => {
     handleAssemble();
     return () => {
@@ -186,37 +175,58 @@ export function App() {
         stepCount={cpuSnapshot.stepCount}
       />
 
-      {/* Main Workspace Layout */}
-      <main className="flex-1 p-4 sm:p-6 space-y-4 max-w-[1600px] w-full mx-auto">
-        {/* Controls Toolbar */}
-        <ExecutionControls
-          status={cpuSnapshot.status}
-          runSpeed={runSpeed}
-          onSetRunSpeed={setRunSpeed}
-          onAssemble={handleAssemble}
-          onStep={handleStep}
-          onRun={handleRun}
-          onPause={handlePause}
-          onReset={handleReset}
-          onLoadExample={handleLoadExample}
-          hasErrors={errors.length > 0}
-        />
+      {/* Main Workspace Layout - Single Viewport Screen */}
+      <main className="flex-1 p-3 sm:p-4 space-y-3 max-w-[1600px] w-full mx-auto flex flex-col">
+        {/* Controls Toolbar with diagram toggle */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <ExecutionControls
+                status={cpuSnapshot.status}
+                runSpeed={runSpeed}
+                onSetRunSpeed={setRunSpeed}
+                onAssemble={handleAssemble}
+                onStep={handleStep}
+                onRun={handleRun}
+                onPause={handlePause}
+                onReset={handleReset}
+                onLoadExample={handleLoadExample}
+                hasErrors={errors.length > 0}
+              />
+            </div>
+          </div>
+        </div>
 
-        {/* Dynamic Architectural Block Visualizer */}
-        <ArchitectureVisualizer
-          buses={cpuSnapshot.activeBuses}
-          regA={cpuSnapshot.A}
-          regB={cpuSnapshot.B}
-          pc={cpuSnapshot.PC}
-          ir={cpuSnapshot.IR}
-          aluOp={cpuSnapshot.aluState.operation}
-          aluRes={cpuSnapshot.aluState.result}
-        />
+        {/* Collapsible Architecture Visualizer */}
+        <div className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-1.5 bg-slate-950 border-b border-slate-800">
+            <span className="text-[11px] font-semibold text-slate-300 font-mono uppercase tracking-wider">
+              CPU Hardware Architecture Diagram
+            </span>
+            <button
+              onClick={() => setShowDiagram(!showDiagram)}
+              className="text-[11px] font-mono text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              {showDiagram ? 'Hide Diagram ▲' : 'Show Diagram ▼'}
+            </button>
+          </div>
+          {showDiagram && (
+            <ArchitectureVisualizer
+              buses={cpuSnapshot.activeBuses}
+              regA={cpuSnapshot.A}
+              regB={cpuSnapshot.B}
+              pc={cpuSnapshot.PC}
+              ir={cpuSnapshot.IR}
+              aluOp={cpuSnapshot.aluState.operation}
+              aluRes={cpuSnapshot.aluState.result}
+            />
+          )}
+        </div>
 
-        {/* 3-Column Laboratory Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[640px]">
-          {/* Column 1: Assembly Editor (4 cols) */}
-          <div className="lg:col-span-4 h-full">
+        {/* 3-Column Core Workbench */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-[500px]">
+          {/* Column 1: Assembly Code Editor (4 cols) */}
+          <div className="lg:col-span-5 h-full flex flex-col">
             <AssemblyEditor
               code={code}
               onChange={setCode}
@@ -227,8 +237,8 @@ export function App() {
             />
           </div>
 
-          {/* Column 2: Registers & ALU (4 cols) */}
-          <div className="lg:col-span-4 flex flex-col gap-4 h-full overflow-y-auto pr-1">
+          {/* Column 2: Registers & ALU (3.5 cols) */}
+          <div className="lg:col-span-3 flex flex-col gap-3 h-full overflow-y-auto">
             <RegisterPanel
               regA={cpuSnapshot.A}
               regB={cpuSnapshot.B}
@@ -239,17 +249,43 @@ export function App() {
             <ALUPanel aluState={cpuSnapshot.aluState} />
           </div>
 
-          {/* Column 3: Memory Viewer & Real-time Execution Log (4 cols) */}
-          <div className="lg:col-span-4 grid grid-rows-2 gap-4 h-full">
-            <div className="h-full min-h-[300px]">
-              <MemoryViewer
-                memory={cpuSnapshot.memory}
-                lastAccess={cpuSnapshot.lastMemoryAccess}
-                onModifyByte={handleModifyByte}
-              />
+          {/* Column 3: Memory & Execution Log (4 cols) */}
+          <div className="lg:col-span-4 flex flex-col h-full bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm">
+            {/* Clean Tab Switcher */}
+            <div className="flex items-center border-b border-slate-800 bg-slate-950 px-2 pt-1 gap-1">
+              <button
+                onClick={() => setRightTab('memory')}
+                className={`px-3 py-1.5 text-xs font-mono font-medium rounded-t border-t border-x transition-colors cursor-pointer ${
+                  rightTab === 'memory'
+                    ? 'bg-slate-900 text-slate-100 border-slate-700'
+                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300'
+                }`}
+              >
+                Memory (256 B)
+              </button>
+              <button
+                onClick={() => setRightTab('log')}
+                className={`px-3 py-1.5 text-xs font-mono font-medium rounded-t border-t border-x transition-colors cursor-pointer ${
+                  rightTab === 'log'
+                    ? 'bg-slate-900 text-slate-100 border-slate-700'
+                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300'
+                }`}
+              >
+                Execution Log ({logs.length})
+              </button>
             </div>
-            <div className="h-full min-h-[300px]">
-              <ExecutionLog logs={logs} onClearLogs={handleClearLogs} />
+
+            {/* Tab Body */}
+            <div className="flex-1 overflow-hidden">
+              {rightTab === 'memory' ? (
+                <MemoryViewer
+                  memory={cpuSnapshot.memory}
+                  lastAccess={cpuSnapshot.lastMemoryAccess}
+                  onModifyByte={handleModifyByte}
+                />
+              ) : (
+                <ExecutionLog logs={logs} onClearLogs={handleClearLogs} />
+              )}
             </div>
           </div>
         </div>
