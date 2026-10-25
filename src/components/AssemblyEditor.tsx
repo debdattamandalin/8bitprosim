@@ -24,20 +24,17 @@ export const AssemblyEditor: React.FC<AssemblyEditorProps> = ({
 
   const lines = code.split('\n');
 
-  // Synchronize scrolling between line numbers and textarea
   const handleScroll = () => {
     if (textareaRef.current && lineNumbersRef.current) {
       lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop;
     }
   };
 
-  // Find the source line corresponding to the current PC
   const activeLineIndex =
     currentPC >= 0 && currentPC < instructions.length
       ? instructions[currentPC].lineIndex
       : -1;
 
-  // Map of line errors (1-based line number -> message)
   const errorMap = new Map<number, string>();
   errors.forEach((err) => errorMap.set(err.line, err.message));
 
@@ -46,47 +43,47 @@ export const AssemblyEditor: React.FC<AssemblyEditorProps> = ({
   }, [code]);
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm">
       {/* Editor Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-950 border-b border-slate-800">
+      <div className="flex items-center justify-between px-3.5 py-2 bg-slate-950 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <Code className="w-4 h-4 text-cyan-400" />
+          <Code className="w-3.5 h-3.5 text-slate-400" />
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-300 font-mono">
             Assembly Editor
           </span>
           <span className="text-[10px] text-slate-500 font-mono">({lines.length} lines)</span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {errors.length > 0 ? (
-            <div className="flex items-center gap-1.5 text-xs text-rose-400 font-mono bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-              <AlertCircle className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1 text-[11px] text-red-300 font-mono bg-red-950/40 px-2 py-0.5 rounded border border-red-800/60">
+              <AlertCircle className="w-3 h-3 text-red-400" />
               <span>{errors.length} error{errors.length > 1 ? 's' : ''}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-1 text-[11px] text-emerald-400 font-mono">
-              <CheckCircle className="w-3 h-3" />
-              <span>Syntax Valid</span>
+            <div className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+              <CheckCircle className="w-3 h-3 text-slate-500" />
+              <span>Valid</span>
             </div>
           )}
 
           <button
             onClick={onClear}
-            className="flex items-center gap-1 px-2 py-1 rounded text-xs text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
             title="Clear editor code"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="w-3 h-3" />
             Clear
           </button>
         </div>
       </div>
 
-      {/* Editor Main Canvas with Side-by-Side Line Indicators & Textarea */}
+      {/* Editor Main Canvas */}
       <div className="relative flex-1 flex overflow-hidden font-mono text-xs">
-        {/* Line Numbers and Active / Error badges */}
+        {/* Line Numbers */}
         <div
           ref={lineNumbersRef}
-          className="w-14 bg-slate-950/70 border-r border-slate-800/80 select-none py-3 text-right pr-3 overflow-hidden text-slate-600 font-mono"
+          className="w-12 bg-slate-950/60 border-r border-slate-800 select-none py-2.5 text-right pr-2.5 overflow-hidden text-slate-600 font-mono"
         >
           {lines.map((_, idx) => {
             const lineNum = idx + 1;
@@ -98,14 +95,14 @@ export const AssemblyEditor: React.FC<AssemblyEditorProps> = ({
                 key={idx}
                 className={`h-5 leading-5 flex items-center justify-end gap-1 ${
                   isCurrent
-                    ? 'text-cyan-400 font-bold bg-cyan-500/20 -mr-3 pr-3 border-r-2 border-cyan-400'
+                    ? 'text-slate-100 font-semibold bg-slate-800 -mr-2.5 pr-2.5 border-r-2 border-slate-300'
                     : hasErr
-                    ? 'text-rose-400 font-bold bg-rose-500/20 -mr-3 pr-3 border-r-2 border-rose-400'
+                    ? 'text-red-400 font-semibold bg-red-950/30 -mr-2.5 pr-2.5 border-r-2 border-red-500'
                     : ''
                 }`}
               >
-                {hasErr && <span className="text-[9px] text-rose-400">●</span>}
-                {isCurrent && <span className="text-[9px] text-cyan-400">▶</span>}
+                {hasErr && <span className="text-[8px] text-red-400">●</span>}
+                {isCurrent && <span className="text-[8px] text-slate-300">▶</span>}
                 <span>{lineNum}</span>
               </div>
             );
@@ -120,18 +117,18 @@ export const AssemblyEditor: React.FC<AssemblyEditorProps> = ({
             onChange={(e) => onChange(e.target.value)}
             onScroll={handleScroll}
             spellCheck={false}
-            className="w-full h-full resize-none bg-transparent p-3 leading-5 text-slate-200 outline-none font-mono focus:ring-0 border-none selection:bg-cyan-500/30 whitespace-pre overflow-auto"
+            className="w-full h-full resize-none bg-transparent p-2.5 leading-5 text-slate-200 outline-none font-mono focus:ring-0 border-none selection:bg-slate-700 whitespace-pre overflow-auto"
             placeholder="; Enter 8-bit assembly code here..."
           />
         </div>
       </div>
 
-      {/* Error notification bar at bottom of editor */}
+      {/* Error notification bar at bottom */}
       {errors.length > 0 && (
-        <div className="bg-rose-950/60 border-t border-rose-800/60 px-4 py-2 text-xs font-mono text-rose-300 max-h-24 overflow-y-auto">
+        <div className="bg-red-950/30 border-t border-red-900/50 px-3 py-1.5 text-xs font-mono text-red-300 max-h-24 overflow-y-auto">
           {errors.map((err, i) => (
-            <div key={i} className="flex items-start gap-1.5 py-0.5">
-              <span className="font-semibold text-rose-400 shrink-0">Line {err.line}:</span>
+            <div key={i} className="flex items-start gap-1 py-0.5">
+              <span className="font-semibold text-red-400 shrink-0">Line {err.line}:</span>
               <span>{err.message}</span>
             </div>
           ))}

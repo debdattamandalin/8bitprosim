@@ -17,7 +17,6 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
   const [editingAddress, setEditingAddress] = useState<number | null>(null);
   const [editValue, setEditValue] = useState<string>('');
 
-  // Target searched address
   const targetAddress = useMemo(() => {
     const q = searchQuery.trim();
     if (!q) return null;
@@ -45,26 +44,26 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-      {/* Header with Search */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-slate-950 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <Database className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono">
+    <div className="flex flex-col h-full bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2 bg-slate-950 border-b border-slate-800">
+        <div className="flex items-center gap-1.5">
+          <Database className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-200 font-mono">
             Memory Viewer
           </span>
-          <span className="text-[10px] text-slate-500 font-mono">(256 Bytes)</span>
+          <span className="text-[10px] text-slate-500 font-mono">(256 B)</span>
         </div>
 
         {/* Address Search */}
         <div className="relative flex items-center">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 text-slate-500" />
+          <Search className="w-3 h-3 absolute left-2 text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search addr (0-255 or 0x00)..."
-            className="pl-8 pr-2.5 py-1 text-xs font-mono bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-cyan-500 w-48"
+            placeholder="Search addr..."
+            className="pl-6 pr-2 py-0.5 text-xs font-mono bg-slate-900 border border-slate-700 rounded text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-slate-500 w-36"
           />
         </div>
       </div>
@@ -74,11 +73,11 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
         <table className="w-full text-left font-mono text-xs border-collapse">
           <thead className="bg-slate-950/80 sticky top-0 text-[10px] uppercase text-slate-400 border-b border-slate-800 tracking-wider">
             <tr>
-              <th className="py-2 px-3 w-16">Addr</th>
-              <th className="py-2 px-3 w-16">Hex</th>
-              <th className="py-2 px-3 w-20">Dec</th>
-              <th className="py-2 px-3">Binary</th>
-              <th className="py-2 px-3 text-right">Access</th>
+              <th className="py-1.5 px-3 w-16">Addr</th>
+              <th className="py-1.5 px-3 w-16">Hex</th>
+              <th className="py-1.5 px-3 w-16">Dec</th>
+              <th className="py-1.5 px-3">Binary</th>
+              <th className="py-1.5 px-3 text-right">Access</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/50">
@@ -91,25 +90,24 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
               return (
                 <tr
                   key={addr}
-                  id={`mem-row-${addr}`}
                   className={`hover:bg-slate-800/40 transition-colors ${
                     isSearched
-                      ? 'bg-amber-500/20'
+                      ? 'bg-slate-800'
                       : isLastAccess && accessType === 'WRITE'
-                      ? 'bg-emerald-500/20'
+                      ? 'bg-slate-800/80'
                       : isLastAccess && accessType === 'READ'
-                      ? 'bg-cyan-500/15'
+                      ? 'bg-slate-850'
                       : val !== 0
-                      ? 'bg-slate-800/20'
+                      ? 'bg-slate-900'
                       : ''
                   }`}
                 >
-                  <td className="py-1.5 px-3 text-slate-500 font-semibold">{toHex8(addr)} ({addr})</td>
-                  <td className="py-1.5 px-3 font-bold text-cyan-300">{toHex8(val)}</td>
+                  <td className="py-1 px-3 text-slate-500">{toHex8(addr)}</td>
+                  <td className="py-1 px-3 font-semibold text-slate-200">{toHex8(val)}</td>
                   <td
-                    className="py-1.5 px-3 text-slate-200 cursor-pointer group"
+                    className="py-1 px-3 text-slate-300 cursor-pointer group"
                     onClick={() => handleStartEdit(addr, val)}
-                    title="Click to edit value directly"
+                    title="Click to edit value"
                   >
                     {isEditing ? (
                       <input
@@ -124,22 +122,22 @@ export const MemoryViewer: React.FC<MemoryViewerProps> = ({
                           if (e.key === 'Enter') handleSaveEdit(addr);
                           if (e.key === 'Escape') setEditingAddress(null);
                         }}
-                        className="w-16 px-1 py-0.5 bg-slate-950 border border-cyan-400 text-xs rounded text-white font-mono"
+                        className="w-14 px-1 py-0.2 bg-slate-950 border border-slate-500 text-xs rounded text-white font-mono"
                       />
                     ) : (
                       <span className="group-hover:underline">{val}</span>
                     )}
                   </td>
-                  <td className="py-1.5 px-3 text-[11px] text-emerald-400/90">{toBin8(val)}</td>
-                  <td className="py-1.5 px-3 text-right">
+                  <td className="py-1 px-3 text-[11px] text-slate-400">{toBin8(val)}</td>
+                  <td className="py-1 px-3 text-right">
                     {accessType === 'WRITE' && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 animate-pulse">
-                        MODIFIED
+                      <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-800 text-slate-200 border border-slate-700">
+                        WRITE
                       </span>
                     )}
                     {accessType === 'READ' && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
-                        ACCESSED
+                      <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        READ
                       </span>
                     )}
                   </td>

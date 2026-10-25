@@ -21,254 +21,251 @@ export const ArchitectureVisualizer: React.FC<ArchitectureVisualizerProps> = ({
   aluRes,
 }) => {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-200 font-mono">
-          CPU Interconnect & Data-Flow Visualization
+    <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+        <h2 className="text-xs font-semibold tracking-wide text-slate-300 font-mono">
+          CPU INTERCONNECT & DATA-FLOW DIAGRAM
         </h2>
         <div className="flex items-center gap-3 text-[10px] font-mono">
-          <span className="flex items-center gap-1 text-cyan-400">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" /> Active Path
+          <span className="flex items-center gap-1 text-slate-200">
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-300" /> Active Bus
           </span>
           <span className="flex items-center gap-1 text-slate-500">
-            <span className="w-2 h-2 rounded-full bg-slate-700" /> Inactive Path
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-700" /> Idle
           </span>
         </div>
       </div>
 
-      {/* SVG Diagram showing real interconnected blocks and active buses */}
-      <div className="relative w-full h-64 bg-slate-950/80 rounded-lg p-2 border border-slate-800/80 overflow-hidden">
-        <svg className="w-full h-full" viewBox="0 0 800 240">
+      {/* SVG Diagram with refined slate/neutral styling */}
+      <div className="relative w-full h-56 bg-slate-950 rounded p-1 border border-slate-800/80 overflow-hidden">
+        <svg className="w-full h-full" viewBox="0 0 800 220">
           <defs>
             <marker
-              id="arrow-cyan"
-              markerWidth="8"
-              markerHeight="8"
-              refX="6"
-              refY="4"
+              id="arrow-active"
+              markerWidth="7"
+              markerHeight="7"
+              refX="5"
+              refY="3.5"
               orient="auto"
             >
-              <polygon points="0 1, 8 4, 0 7" fill="#22d3ee" />
+              <polygon points="0 0.5, 7 3.5, 0 6.5" fill="#e2e8f0" />
             </marker>
             <marker
-              id="arrow-slate"
-              markerWidth="8"
-              markerHeight="8"
-              refX="6"
-              refY="4"
+              id="arrow-idle"
+              markerWidth="7"
+              markerHeight="7"
+              refX="5"
+              refY="3.5"
               orient="auto"
             >
-              <polygon points="0 1, 8 4, 0 7" fill="#475569" />
+              <polygon points="0 0.5, 7 3.5, 0 6.5" fill="#475569" />
             </marker>
           </defs>
 
-          {/* BUS CONNECTIONS */}
           {/* PC to Memory */}
           <path
-            d="M 120 70 L 220 70"
+            d="M 120 65 L 220 65"
             fill="none"
-            stroke={buses.pc ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.pc ? '2.5' : '1.5'}
-            strokeDasharray={buses.pc ? '4,4' : 'none'}
-            className={buses.pc ? 'animate-pulse' : ''}
-            markerEnd={buses.pc ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.pc ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.pc ? '2' : '1'}
+            markerEnd={buses.pc ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
           {/* Memory to IR */}
           <path
-            d="M 270 95 L 270 145"
+            d="M 270 90 L 270 135"
             fill="none"
-            stroke={buses.ir ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.ir ? '2.5' : '1.5'}
-            markerEnd={buses.ir ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.ir ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.ir ? '2' : '1'}
+            markerEnd={buses.ir ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
           {/* IR to Control Unit */}
           <path
-            d="M 320 170 L 400 170"
+            d="M 320 160 L 390 160"
             fill="none"
-            stroke={buses.controlUnit ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.controlUnit ? '2.5' : '1.5'}
-            markerEnd={buses.controlUnit ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.controlUnit ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.controlUnit ? '2' : '1'}
+            markerEnd={buses.controlUnit ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* Control Unit signals up to ALU and Registers */}
+          {/* Control Unit up to registers */}
           <path
-            d="M 450 145 L 450 115"
+            d="M 445 135 L 445 110"
             fill="none"
-            stroke={buses.controlUnit ? '#22d3ee' : '#334155'}
-            strokeWidth="1.5"
-            markerEnd={buses.controlUnit ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.controlUnit ? '#cbd5e1' : '#334155'}
+            strokeWidth="1"
+            markerEnd={buses.controlUnit ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* Register A to ALU */}
+          {/* Reg A to ALU */}
           <path
-            d="M 490 70 L 590 70"
+            d="M 490 65 L 590 65"
             fill="none"
-            stroke={buses.regA && buses.alu ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.regA && buses.alu ? '2.5' : '1.5'}
-            markerEnd={buses.regA && buses.alu ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.regA && buses.alu ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.regA && buses.alu ? '2' : '1'}
+            markerEnd={buses.regA && buses.alu ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* Register B to ALU */}
+          {/* Reg B to ALU */}
           <path
-            d="M 540 100 L 590 90"
+            d="M 540 95 L 590 85"
             fill="none"
-            stroke={buses.regB && buses.alu ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.regB && buses.alu ? '2.5' : '1.5'}
-            markerEnd={buses.regB && buses.alu ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.regB && buses.alu ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.regB && buses.alu ? '2' : '1'}
+            markerEnd={buses.regB && buses.alu ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* ALU Output loop back to Register A */}
+          {/* ALU Output back to Reg A */}
           <path
-            d="M 680 70 C 720 70, 720 20, 450 20 L 450 45"
+            d="M 680 65 C 715 65, 715 20, 445 20 L 445 40"
             fill="none"
-            stroke={buses.alu ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.alu ? '2.5' : '1.5'}
-            markerEnd={buses.alu ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.alu ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.alu ? '2' : '1'}
+            markerEnd={buses.alu ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* Memory to Registers Data Bus (Bottom bidirectional) */}
+          {/* Memory to Registers */}
           <path
-            d="M 270 70 L 390 70"
+            d="M 270 65 L 390 65"
             fill="none"
-            stroke={buses.memory ? '#22d3ee' : '#334155'}
-            strokeWidth={buses.memory ? '2.5' : '1.5'}
-            markerEnd={buses.memory ? 'url(#arrow-cyan)' : 'url(#arrow-slate)'}
+            stroke={buses.memory ? '#cbd5e1' : '#334155'}
+            strokeWidth={buses.memory ? '2' : '1'}
+            markerEnd={buses.memory ? 'url(#arrow-active)' : 'url(#arrow-idle)'}
           />
 
-          {/* BLOCK 1: PROGRAM COUNTER (PC) */}
+          {/* BLOCK: PC */}
           <g>
             <rect
               x="20"
-              y="45"
+              y="40"
               width="100"
               height="50"
-              rx="6"
+              rx="4"
               fill={buses.pc ? '#1e293b' : '#0f172a'}
-              stroke={buses.pc ? '#22d3ee' : '#334155'}
-              strokeWidth={buses.pc ? '2' : '1'}
+              stroke={buses.pc ? '#64748b' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="70" y="66" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
+            <text x="70" y="60" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
               PROGRAM COUNTER
             </text>
-            <text x="70" y="84" textAnchor="middle" fill={buses.pc ? '#38bdf8' : '#e2e8f0'} fontSize="13" fontWeight="bold" fontFamily="monospace">
+            <text x="70" y="78" textAnchor="middle" fill="#f8fafc" fontSize="13" fontWeight="600" fontFamily="monospace">
               PC: {pc}
             </text>
           </g>
 
-          {/* BLOCK 2: MEMORY */}
+          {/* BLOCK: RAM */}
           <g>
             <rect
               x="220"
-              y="45"
+              y="40"
               width="100"
               height="50"
-              rx="6"
+              rx="4"
               fill={buses.memory ? '#1e293b' : '#0f172a'}
-              stroke={buses.memory ? '#22d3ee' : '#334155'}
-              strokeWidth={buses.memory ? '2' : '1'}
+              stroke={buses.memory ? '#64748b' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="270" y="66" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
+            <text x="270" y="60" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
               RAM (256 B)
             </text>
-            <text x="270" y="84" textAnchor="middle" fill={buses.memory ? '#38bdf8' : '#cbd5e1'} fontSize="11" fontWeight="bold" fontFamily="monospace">
+            <text x="270" y="78" textAnchor="middle" fill="#e2e8f0" fontSize="11" fontWeight="500" fontFamily="monospace">
               {buses.memory ? 'ACCESSING' : 'READY'}
             </text>
           </g>
 
-          {/* BLOCK 3: INSTRUCTION REGISTER (IR) */}
+          {/* BLOCK: IR */}
           <g>
             <rect
               x="220"
-              y="145"
+              y="135"
               width="100"
               height="50"
-              rx="6"
+              rx="4"
               fill={buses.ir ? '#1e293b' : '#0f172a'}
-              stroke={buses.ir ? '#a855f7' : '#334155'}
-              strokeWidth={buses.ir ? '2' : '1'}
+              stroke={buses.ir ? '#64748b' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="270" y="165" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
+            <text x="270" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
               INST REGISTER
             </text>
-            <text x="270" y="183" textAnchor="middle" fill="#d8b4fe" fontSize="10" fontWeight="bold" fontFamily="monospace">
-              {ir ? (ir.length > 10 ? ir.substring(0, 10) + '..' : ir) : 'EMPTY'}
+            <text x="270" y="173" textAnchor="middle" fill="#e2e8f0" fontSize="10" fontWeight="500" fontFamily="monospace">
+              {ir ? (ir.length > 11 ? ir.substring(0, 11) + '..' : ir) : 'NOP'}
             </text>
           </g>
 
-          {/* BLOCK 4: CONTROL UNIT */}
+          {/* BLOCK: CONTROL UNIT */}
           <g>
             <rect
               x="390"
-              y="145"
-              width="120"
+              y="135"
+              width="110"
               height="50"
-              rx="6"
+              rx="4"
               fill={buses.controlUnit ? '#1e293b' : '#0f172a'}
-              stroke={buses.controlUnit ? '#38bdf8' : '#334155'}
-              strokeWidth={buses.controlUnit ? '2' : '1'}
+              stroke={buses.controlUnit ? '#64748b' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="450" y="166" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
+            <text x="445" y="155" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
               CONTROL UNIT
             </text>
-            <text x="450" y="184" textAnchor="middle" fill="#38bdf8" fontSize="11" fontWeight="bold" fontFamily="monospace">
-              DECODE & SYNC
+            <text x="445" y="173" textAnchor="middle" fill="#cbd5e1" fontSize="11" fontWeight="500" fontFamily="monospace">
+              DECODER
             </text>
           </g>
 
-          {/* BLOCK 5: REGISTER A (ACCUMULATOR) */}
+          {/* BLOCK: REGISTER A */}
           <g>
             <rect
               x="390"
-              y="45"
+              y="40"
               width="100"
               height="50"
-              rx="6"
-              fill={buses.regA ? '#164e63' : '#0f172a'}
-              stroke={buses.regA ? '#22d3ee' : '#334155'}
-              strokeWidth={buses.regA ? '2' : '1'}
+              rx="4"
+              fill={buses.regA ? '#1e293b' : '#0f172a'}
+              stroke={buses.regA ? '#94a3b8' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="440" y="65" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
-              REGISTER A (ACC)
+            <text x="440" y="60" textAnchor="middle" fill="#94a3b8" fontSize="10" fontFamily="monospace">
+              REG A (ACC)
             </text>
-            <text x="440" y="84" textAnchor="middle" fill="#22d3ee" fontSize="14" fontWeight="bold" fontFamily="monospace">
+            <text x="440" y="79" textAnchor="middle" fill="#f8fafc" fontSize="14" fontWeight="600" fontFamily="monospace">
               {regA}
             </text>
           </g>
 
-          {/* BLOCK 6: REGISTER B */}
+          {/* BLOCK: REGISTER B */}
           <g>
             <rect
               x="450"
-              y="100"
+              y="95"
               width="90"
               height="35"
-              rx="6"
+              rx="4"
               fill={buses.regB ? '#1e293b' : '#0f172a'}
-              stroke={buses.regB ? '#22d3ee' : '#334155'}
-              strokeWidth={buses.regB ? '2' : '1'}
+              stroke={buses.regB ? '#94a3b8' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="495" y="115" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="monospace">
-              REGISTER B
+            <text x="495" y="110" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="monospace">
+              REG B
             </text>
-            <text x="495" y="129" textAnchor="middle" fill="#94a3b8" fontSize="11" fontWeight="bold" fontFamily="monospace">
+            <text x="495" y="124" textAnchor="middle" fill="#cbd5e1" fontSize="11" fontWeight="600" fontFamily="monospace">
               {regB}
             </text>
           </g>
 
-          {/* BLOCK 7: ALU */}
+          {/* BLOCK: ALU */}
           <g>
             <polygon
-              points="590,30 680,50 680,90 590,110 590,80 610,70 590,60"
-              fill={buses.alu ? '#064e3b' : '#0f172a'}
-              stroke={buses.alu ? '#10b981' : '#334155'}
-              strokeWidth={buses.alu ? '2' : '1'}
+              points="590,25 680,45 680,85 590,105 590,75 610,65 590,55"
+              fill={buses.alu ? '#1e293b' : '#0f172a'}
+              stroke={buses.alu ? '#94a3b8' : '#334155'}
+              strokeWidth="1"
             />
-            <text x="640" y="65" textAnchor="middle" fill="#6ee7b7" fontSize="12" fontWeight="bold" fontFamily="monospace">
+            <text x="640" y="60" textAnchor="middle" fill="#e2e8f0" fontSize="12" fontWeight="600" fontFamily="monospace">
               ALU
             </text>
-            <text x="640" y="80" textAnchor="middle" fill="#a7f3d0" fontSize="9" fontFamily="monospace">
+            <text x="640" y="75" textAnchor="middle" fill="#94a3b8" fontSize="9" fontFamily="monospace">
               {aluOp ? `${aluOp} → ${aluRes}` : 'IDLE'}
             </text>
           </g>
