@@ -12,6 +12,7 @@ import { ALUPanel } from './components/ALUPanel';
 import { ArchitectureVisualizer } from './components/ArchitectureVisualizer';
 import { MemoryViewer } from './components/MemoryViewer';
 import { ExecutionLog } from './components/ExecutionLog';
+import { OutputConsole } from './components/OutputConsole';
 
 export function App() {
   const cpuRef = useRef<CPUEngine>(new CPUEngine());
@@ -21,8 +22,8 @@ export function App() {
   const [errors, setErrors] = useState<AssemblyError[]>([]);
   const [parsedInstructions, setParsedInstructions] = useState<ParsedInstruction[]>([]);
 
-  // Right-hand tab state: Memory vs Execution Log
-  const [rightTab, setRightTab] = useState<'memory' | 'log'>('memory');
+  // Right-hand tab state: Memory vs Output vs Execution Log
+  const [rightTab, setRightTab] = useState<'output' | 'memory' | 'log'>('output');
   const [showDiagram, setShowDiagram] = useState<boolean>(true);
 
   // Simulation execution settings
@@ -168,33 +169,26 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Top Header */}
       <Header
         status={cpuSnapshot.status}
         onReset={handleReset}
         stepCount={cpuSnapshot.stepCount}
       />
 
-      {/* Main Workspace Layout - Single Viewport Screen */}
       <main className="flex-1 p-3 sm:p-4 space-y-3 max-w-[1600px] w-full mx-auto flex flex-col">
-        {/* Controls Toolbar with diagram toggle */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <ExecutionControls
-                status={cpuSnapshot.status}
-                runSpeed={runSpeed}
-                onSetRunSpeed={setRunSpeed}
-                onAssemble={handleAssemble}
-                onStep={handleStep}
-                onRun={handleRun}
-                onPause={handlePause}
-                onReset={handleReset}
-                onLoadExample={handleLoadExample}
-                hasErrors={errors.length > 0}
-              />
-            </div>
-          </div>
+          <ExecutionControls
+            status={cpuSnapshot.status}
+            runSpeed={runSpeed}
+            onSetRunSpeed={setRunSpeed}
+            onAssemble={handleAssemble}
+            onStep={handleStep}
+            onRun={handleRun}
+            onPause={handlePause}
+            onReset={handleReset}
+            onLoadExample={handleLoadExample}
+            hasErrors={errors.length > 0}
+          />
         </div>
 
         {/* Collapsible Architecture Visualizer */}
@@ -225,7 +219,7 @@ export function App() {
 
         {/* 3-Column Core Workbench */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-[500px]">
-          {/* Column 1: Assembly Code Editor (4 cols) */}
+          {/* Column 1: Assembly Code Editor (5 cols) */}
           <div className="lg:col-span-5 h-full flex flex-col">
             <AssemblyEditor
               code={code}
@@ -249,10 +243,20 @@ export function App() {
             <ALUPanel aluState={cpuSnapshot.aluState} />
           </div>
 
-          {/* Column 3: Memory & Execution Log (4 cols) */}
+          {/* Column 3: Output Console / Memory / Execution Log (3.5 cols) */}
           <div className="lg:col-span-4 flex flex-col h-full bg-slate-900 border border-slate-800 rounded-lg overflow-hidden shadow-sm">
-            {/* Clean Tab Switcher */}
+            {/* Tab Switcher */}
             <div className="flex items-center border-b border-slate-800 bg-slate-950 px-2 pt-1 gap-1">
+              <button
+                onClick={() => setRightTab('output')}
+                className={`px-3 py-1.5 text-xs font-mono font-medium rounded-t border-t border-x transition-colors cursor-pointer ${
+                  rightTab === 'output'
+                    ? 'bg-slate-900 text-slate-100 border-slate-700'
+                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300'
+                }`}
+              >
+                Output Console
+              </button>
               <button
                 onClick={() => setRightTab('memory')}
                 className={`px-3 py-1.5 text-xs font-mono font-medium rounded-t border-t border-x transition-colors cursor-pointer ${
@@ -271,13 +275,15 @@ export function App() {
                     : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300'
                 }`}
               >
-                Execution Log ({logs.length})
+                Log ({logs.length})
               </button>
             </div>
 
-            {/* Tab Body */}
+            {/* Tab Content */}
             <div className="flex-1 overflow-hidden">
-              {rightTab === 'memory' ? (
+              {rightTab === 'output' ? (
+                <OutputConsole snapshot={cpuSnapshot} logs={logs} />
+              ) : rightTab === 'memory' ? (
                 <MemoryViewer
                   memory={cpuSnapshot.memory}
                   lastAccess={cpuSnapshot.lastMemoryAccess}
