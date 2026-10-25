@@ -9,6 +9,87 @@ export interface ExampleProgram {
 
 export const EXAMPLE_PROGRAMS: ExampleProgram[] = [
   {
+    id: 'example-demo-full',
+    name: 'Full Suite: Arithmetic, Logic & Flags',
+    category: 'Comprehensive',
+    description: 'Complete demonstration of ADD, SUB, MOV, INC, DEC, AND, OR, XOR, Flags and HALT.',
+    code: `; ==========================================
+; 8-BIT CPU SIMULATOR
+; Arithmetic and Logic Demonstration
+; ==========================================
+
+; STEP 1: INITIALIZE REGISTERS
+LOAD A, 10
+LOAD B, 20
+
+; STEP 2: ADDITION
+ADD A, B
+STORE 50, A
+
+; STEP 3: REGISTER TRANSFER
+MOV B, A
+STORE 51, B
+
+; STEP 4: SUBTRACTION
+LOAD A, 50
+LOAD B, 15
+SUB A, B
+STORE 52, A
+
+; STEP 5: INCREMENT
+INC A
+STORE 53, A
+
+; STEP 6: DECREMENT
+DEC A
+STORE 54, A
+
+; STEP 7: LOGICAL AND
+LOAD A, 12
+LOAD B, 10
+AND A, B
+STORE 55, A
+
+; STEP 8: LOGICAL OR
+LOAD A, 12
+LOAD B, 10
+OR A, B
+STORE 56, A
+
+; STEP 9: LOGICAL XOR
+LOAD A, 12
+LOAD B, 10
+XOR A, B
+STORE 57, A
+
+; STEP 10: TEST ZERO FLAG WITH LABELS
+LOAD A, 25
+LOAD B, 25
+SUB A, B
+JZ ZERO_LABEL
+
+; If jump not taken:
+LOAD A, 99
+STORE 58, A
+JMP FINAL_STEP
+
+ZERO_LABEL:
+; Zero Flag handling:
+LOAD A, 1
+STORE 58, A
+
+FINAL_STEP:
+; STEP 12: FINAL RESULT
+LOAD A, 100
+LOAD B, 50
+ADD A, B
+STORE 59, A
+
+; TERMINATE EXECUTION
+HALT`,
+    expectedResult: 'All arithmetic, logical, flag branching and stores verified.',
+  },
+  {
     id: 'example-1-addition',
     name: 'Example 1: Addition',
     category: 'Arithmetic',
